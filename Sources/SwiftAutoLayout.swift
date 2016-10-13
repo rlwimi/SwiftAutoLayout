@@ -71,42 +71,102 @@ public struct LayoutItem<C>: LayoutItemProtocol {
         return LayoutItem(item: self.item, attribute: self.attribute, multiplier: self.multiplier, constant: constant)
     }
 
+    /// Apply `rhs` as a multiplier to `lhs`.
+    ///
+    /// - parameter lhs: The layout attribute to modify.
+    /// - parameter rhs: A multiplier.
+    ///
+    /// - note: The "•" character is typed as Opt-8 on a standard US keyboard layout.
     public static func •*(lhs: LayoutItem, rhs: CGFloat) -> LayoutItem {
       return lhs.itemWithMultiplier(lhs.multiplier * rhs)
     }
 
+    /// Apply `1/rhs` as a multiplier to `lhs`.
+    ///
+    /// - parameter lhs: The layout attribute to modify.
+    /// - parameter rhs: A multiplier to divide by.
+    ///
+    /// - note: The "•" character is typed as Opt-8 on a standard US keyboard layout.
     public static func •/(lhs: LayoutItem, rhs: CGFloat) -> LayoutItem {
       return lhs.itemWithMultiplier(lhs.multiplier / rhs)
     }
 
+    /// Add `rhs` to the constant of `lhs`.
+    ///
+    /// - parameter lhs: The layout attribute to modify.
+    /// - parameter rhs: A constant to add.
+    ///
+    /// - note: The "•" character is typed as Opt-8 on a standard US keyboard layout.
     public static func •+(lhs: LayoutItem, rhs: CGFloat) -> LayoutItem {
       return lhs.itemWithConstant(lhs.constant + rhs)
     }
 
+    /// Subtract `rhs` from the constant of `lhs`.
+    ///
+    /// - parameter lhs: The layout attribute to modify.
+    /// - parameter rhs: A constant to subtract.
+    ///
+    /// - note: The "•" character is typed as Opt-8 on a standard US keyboard layout.
     public static func •-(lhs: LayoutItem, rhs: CGFloat) -> LayoutItem {
       return lhs.itemWithConstant(lhs.constant - rhs)
     }
 
+    /// Create an "equal to" constraint between `lhs` and `rhs`.
+    ///
+    /// - parameter lhs: The left side of the constraint.
+    /// - parameter rhs: The right side of the constraint.
+    ///
+    /// - note: The "•" character is typed as Opt-8 on a standard US keyboard layout.
     public static func •==(lhs: LayoutItem, rhs: LayoutItem) -> NSLayoutConstraint {
       return lhs.constrain(rhs, relation: .equal)
     }
 
+    /// Constrain `lhs` as "equal to" the constant `rhs`.
+    ///
+    /// - parameter lhs: The left side of the constraint.
+    /// - parameter rhs: The right side of the constraint.
+    ///
+    /// - note: The "•" character is typed as Opt-8 on a standard US keyboard layout.
     public static func •==(lhs: LayoutItem, rhs: CGFloat) -> NSLayoutConstraint {
       return lhs.constrain(rhs, relation: .equal)
     }
 
+    /// Create a "greater than or equal to" constraint between `lhs` and `rhs`.
+    ///
+    /// - parameter lhs: The left side of the constraint.
+    /// - parameter rhs: The right side of the constraint.
+    ///
+    /// - note: The "•" character is typed as Opt-8 on a standard US keyboard layout.
     public static func •>=(lhs: LayoutItem, rhs: LayoutItem) -> NSLayoutConstraint {
       return lhs.constrain(rhs, relation: .greaterThanOrEqual)
     }
 
+    /// Constrain `lhs` as "greater than or equal to" the constant `rhs`.
+    ///
+    /// - parameter lhs: The left side of the constraint.
+    /// - parameter rhs: The right side of the constraint.
+    ///
+    /// - note: The "•" character is typed as Opt-8 on a standard US keyboard layout.
     public static func •>=(lhs: LayoutItem, rhs: CGFloat) -> NSLayoutConstraint {
       return lhs.constrain(rhs, relation: .greaterThanOrEqual)
     }
 
+    /// Create a "less than or equal to" constraint between `lhs` and `rhs`.
+    ///
+    /// - parameter lhs: The left side of the constraint.
+    /// - parameter rhs: The right side of the constraint.
+    ///
+    /// - note: The "•" character is typed as Opt-8 on a standard US keyboard layout.
     public static func •<=(lhs: LayoutItem, rhs: LayoutItem) -> NSLayoutConstraint {
       return lhs.constrain(rhs, relation: .lessThanOrEqual)
     }
 
+    /// Constrain `lhs` as "less than or equal to" the constant `rhs`.
+    ///
+    /// - parameter lhs: The left side of the constraint.
+    /// - parameter rhs: The right side of the constraint.
+    ///
+    /// - note: The "•" character is typed as Opt-8 on a standard US keyboard layout.
     public static func •<=(lhs: LayoutItem, rhs: CGFloat) -> NSLayoutConstraint {
       return lhs.constrain(rhs, relation: .lessThanOrEqual)
     }
