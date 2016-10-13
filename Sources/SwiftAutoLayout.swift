@@ -5,14 +5,14 @@
     import AppKit
     public typealias View = NSView
     public typealias LayoutPriority = NSLayoutPriority
-    
+
     @available(OSX 10.11, *)
     public typealias LayoutGuide = NSLayoutGuide
 #elseif os(iOS) || os(tvOS)
     import UIKit
     public typealias View = UIView
     public typealias LayoutPriority = UILayoutPriority
-    
+
     @available(iOS 9.0, *)
     public typealias LayoutGuide = UILayoutGuide
 #endif
@@ -27,67 +27,89 @@ public struct XAxis {}
 public struct YAxis {}
 public struct Dimension {}
 
-public struct LayoutItem<C> {
+infix operator •==: ComparisonPrecedence
+infix operator •<=: ComparisonPrecedence
+infix operator •>=: ComparisonPrecedence
+infix operator •+: AdditionPrecedence
+infix operator •-: AdditionPrecedence
+infix operator •*: MultiplicationPrecedence
+infix operator •/: MultiplicationPrecedence
+
+public protocol LayoutItemProtocol {
+  static func •==(lhs: Self, rhs: Self) -> NSLayoutConstraint
+  static func •==(lhs: Self, rhs: CGFloat) -> NSLayoutConstraint
+  static func •>=(lhs: Self, rhs: Self) -> NSLayoutConstraint
+  static func •>=(lhs: Self, rhs: CGFloat) -> NSLayoutConstraint
+  static func •<=(lhs: Self, rhs: Self) -> NSLayoutConstraint
+  static func •<=(lhs: Self, rhs: CGFloat) -> NSLayoutConstraint
+
+  static func •+(lhs: Self, rhs: CGFloat) -> Self
+  static func •-(lhs: Self, rhs: CGFloat) -> Self
+  static func •*(lhs: Self, rhs: CGFloat) -> Self
+  static func •/(lhs: Self, rhs: CGFloat) -> Self
+}
+
+public struct LayoutItem<C>: LayoutItemProtocol {
     public let item: AnyObject
     public let attribute: NSLayoutAttribute
     public let multiplier: CGFloat
     public let constant: CGFloat
-    
+
     fileprivate func constrain(_ secondItem: LayoutItem, relation: NSLayoutRelation) -> NSLayoutConstraint {
         return NSLayoutConstraint(item: item, attribute: attribute, relatedBy: relation, toItem: secondItem.item, attribute: secondItem.attribute, multiplier: secondItem.multiplier, constant: secondItem.constant)
     }
-    
+
     fileprivate func constrain(_ constant: CGFloat, relation: NSLayoutRelation) -> NSLayoutConstraint {
         return NSLayoutConstraint(item: item, attribute: attribute, relatedBy: relation, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: constant)
     }
-    
+
     fileprivate func itemWithMultiplier(_ multiplier: CGFloat) -> LayoutItem {
         return LayoutItem(item: self.item, attribute: self.attribute, multiplier: multiplier, constant: self.constant)
     }
-    
+
     fileprivate func itemWithConstant(_ constant: CGFloat) -> LayoutItem {
         return LayoutItem(item: self.item, attribute: self.attribute, multiplier: self.multiplier, constant: constant)
     }
-}
 
-public func *<C>(lhs: LayoutItem<C>, rhs: CGFloat) -> LayoutItem<C> {
-    return lhs.itemWithMultiplier(lhs.multiplier * rhs)
-}
+    public static func •*(lhs: LayoutItem, rhs: CGFloat) -> LayoutItem {
+      return lhs.itemWithMultiplier(lhs.multiplier * rhs)
+    }
 
-public func /<C>(lhs: LayoutItem<C>, rhs: CGFloat) -> LayoutItem<C> {
-    return lhs.itemWithMultiplier(lhs.multiplier / rhs)
-}
+    public static func •/(lhs: LayoutItem, rhs: CGFloat) -> LayoutItem {
+      return lhs.itemWithMultiplier(lhs.multiplier / rhs)
+    }
 
-public func +<C>(lhs: LayoutItem<C>, rhs: CGFloat) -> LayoutItem<C> {
-    return lhs.itemWithConstant(lhs.constant + rhs)
-}
+    public static func •+(lhs: LayoutItem, rhs: CGFloat) -> LayoutItem {
+      return lhs.itemWithConstant(lhs.constant + rhs)
+    }
 
-public func -<C>(lhs: LayoutItem<C>, rhs: CGFloat) -> LayoutItem<C> {
-    return lhs.itemWithConstant(lhs.constant - rhs)
-}
+    public static func •-(lhs: LayoutItem, rhs: CGFloat) -> LayoutItem {
+      return lhs.itemWithConstant(lhs.constant - rhs)
+    }
 
-public func ==<C>(lhs: LayoutItem<C>, rhs: LayoutItem<C>) -> NSLayoutConstraint {
-    return lhs.constrain(rhs, relation: .equal)
-}
+    public static func •==(lhs: LayoutItem, rhs: LayoutItem) -> NSLayoutConstraint {
+      return lhs.constrain(rhs, relation: .equal)
+    }
 
-public func ==(lhs: LayoutItem<Dimension>, rhs: CGFloat) -> NSLayoutConstraint {
-    return lhs.constrain(rhs, relation: .equal)
-}
+    public static func •==(lhs: LayoutItem, rhs: CGFloat) -> NSLayoutConstraint {
+      return lhs.constrain(rhs, relation: .equal)
+    }
 
-public func >=<C>(lhs: LayoutItem<C>, rhs: LayoutItem<C>) -> NSLayoutConstraint {
-    return lhs.constrain(rhs, relation: .greaterThanOrEqual)
-}
+    public static func •>=(lhs: LayoutItem, rhs: LayoutItem) -> NSLayoutConstraint {
+      return lhs.constrain(rhs, relation: .greaterThanOrEqual)
+    }
 
-public func >=(lhs: LayoutItem<Dimension>, rhs: CGFloat) -> NSLayoutConstraint {
-    return lhs.constrain(rhs, relation: .greaterThanOrEqual)
-}
+    public static func •>=(lhs: LayoutItem, rhs: CGFloat) -> NSLayoutConstraint {
+      return lhs.constrain(rhs, relation: .greaterThanOrEqual)
+    }
 
-public func <=<C>(lhs: LayoutItem<C>, rhs: LayoutItem<C>) -> NSLayoutConstraint {
-    return lhs.constrain(rhs, relation: .lessThanOrEqual)
-}
+    public static func •<=(lhs: LayoutItem, rhs: LayoutItem) -> NSLayoutConstraint {
+      return lhs.constrain(rhs, relation: .lessThanOrEqual)
+    }
 
-public func <=(lhs: LayoutItem<Dimension>, rhs: CGFloat) -> NSLayoutConstraint {
-    return lhs.constrain(rhs, relation: .lessThanOrEqual)
+    public static func •<=(lhs: LayoutItem, rhs: CGFloat) -> NSLayoutConstraint {
+      return lhs.constrain(rhs, relation: .lessThanOrEqual)
+    }
 }
 
 fileprivate func layoutItem<C>(_ item: AnyObject, _ attribute: NSLayoutAttribute) -> LayoutItem<C> {
@@ -109,7 +131,7 @@ public extension LayoutRegion {
 
 public extension View {
     public var baseline: LayoutItem<YAxis> { return layoutItem(self, .lastBaseline) }
-    
+
     @available(iOS 8.0, OSX 10.11, *)
     public var firstBaseline: LayoutItem<YAxis> { return layoutItem(self, .firstBaseline) }
     public var lastBaseline: LayoutItem<YAxis> { return layoutItem(self, .lastBaseline) }
@@ -120,20 +142,20 @@ public extension UIViewController {
     public var topLayoutGuideTop: LayoutItem<YAxis> {
         return layoutItem(topLayoutGuide, .top)
     }
-    
+
     public var topLayoutGuideBottom: LayoutItem<YAxis> {
         return layoutItem(topLayoutGuide, .bottom)
     }
-    
+
     public var bottomLayoutGuideTop: LayoutItem<YAxis> {
         return layoutItem(bottomLayoutGuide, .top)
     }
-    
+
     public var bottomLayoutGuideBottom: LayoutItem<YAxis> {
         return layoutItem(bottomLayoutGuide, .bottom)
     }
 }
-    
+
 public extension UIView {
     public var leftMargin: LayoutItem<XAxis> { return layoutItem(self, .leftMargin) }
     public var rightMargin: LayoutItem<XAxis> { return layoutItem(self, .rightMargin) }
